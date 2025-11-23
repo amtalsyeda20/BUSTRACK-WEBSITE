@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartBus Admin Panel</title>
+
+<!-- Leaflet Map Links -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+  * {margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif;}
+  body { display: flex; background: url("images/bg pic1.jpg") no-repeat center center/cover; height: 100vh; color: #fff; overflow: hidden; }
+  .sidebar { width: 260px; background: rgba(10,20,40,0.95); height: 100vh; padding: 25px; display: flex; flex-direction: column; box-shadow: 3px 0 15px rgba(0,0,0,0.4); position: fixed; }
+  .sidebar h2 { text-align: center; color: #ffd700; margin-bottom: 25px; font-size: 1.6rem; }
+  .sidebar button { background: none; border: none; color: #fff; text-align: left; font-size: 1.05rem; padding: 12px; margin: 5px 0; cursor: pointer; transition: 0.3s; border-radius: 6px; }
+  .sidebar button:hover { background: rgba(255,255,255,0.15); color: #ffd700; }
+  .dropdown { display: none; flex-direction: column; margin-left: 20px; }
+  .dropdown a { color: #ddd; text-decoration: none; font-size: 0.95rem; margin: 6px 0; padding-left: 10px; transition: 0.3s; }
+  .dropdown a:hover { color: #ffd700; }
+  .main { margin-left: 280px; padding: 40px; flex: 1; background: rgba(0,0,0,0.5); overflow-y: scroll; height: 100vh; }
+  .main h1 { color: #ffd700; margin-bottom: 20px; font-size: 2rem; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+  .section { background: rgba(255,255,255,0.1); padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+  .section h2 { color: #ffd700; margin-bottom: 10px; font-size: 1.4rem; }
+  .section p { color: #eee; line-height: 1.7; font-size: 1.05rem; }
+  #map { height: 400px; width: 100%; border-radius: 10px; margin-top: 20px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+  table, th, td { border: 1px solid rgba(255,255,255,0.2); }
+  th, td { padding: 10px; text-align: left; }
+  th { background: rgba(255,215,0,0.2); color: #ffd700; }
+  td { background: rgba(255,255,255,0.05); }
+  .card { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); border-radius: 12px; padding: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.45); transition: transform .35s ease, box-shadow .35s ease; transform: translateY(0); }
+  .card:hover { transform: translateY(-8px); box-shadow: 0 18px 40px rgba(0,0,0,0.55); }
+  .input-row { display:flex; gap:12px; margin-bottom:12px; }
+  .input-row input, .input-row select { flex:1; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.35); color:#fff; }
+  .small-btn { padding:10px 14px; border-radius:8px; border:none; cursor:pointer; background:#ffd700; color:#000; font-weight:700; box-shadow: 0 6px 18px rgba(255,215,0,0.12); }
+  .fade-in { animation: fadeIn .6s ease both; }
+  @keyframes fadeIn { from {opacity:0; transform: translateY(8px)} to {opacity:1; transform:none} }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <h2>BusTrack Admin</h2>
+  <button onclick="window.location.href='login.html'" style="background:#444; color:#ffd700; margin-bottom: 15px; padding:10px; border:none; border-radius:6px; cursor:pointer;">⬅ Back to Login</button>
+  <button onclick="toggleDropdown('busMenu')">🚌 Manage Bus</button>
+  <div class="dropdown" id="busMenu">
+    <a href="#" onclick="showSection('addBus')">Add Bus</a>
+    <a href="#" onclick="showSection('viewBus')">View Buses</a>
+  </div>
+  <button onclick="toggleDropdown('driverMenu')">👨‍✈️ Manage Drivers</button>
+  <div class="dropdown" id="driverMenu">
+    <a href="#" onclick="showSection('drivers')">Driver List</a>
+  </div>
+  <button onclick="toggleDropdown('trackMenu')">🗺️ Live Tracking</button>
+  <div class="dropdown" id="trackMenu">
+    <a href="#" onclick="showSection('mapSection')">Track Bus</a>
+  </div>
+  <button onclick="showSection('overview')">📊 Overview</button>
+</div>
+
+<div class="main" id="mainContent">
+  <div id="overview" class="section">
+    <h1>Welcome to SmartBus Admin Panel</h1>
+    <p>
+      Monitor, manage, and optimize your transport operations effortlessly...
+    </p>
+  </div>
+
+  <div id="addBus" class="section" style="display:none;">
+    <h2>Add New Bus</h2>
+    <div class="card fade-in" style="max-width:800px;">
+      <form id="busForm">
+        <div class="input-row">
+          <input id="busName" type="text" placeholder="Bus Name" required>
+          <input id="route" type="text" placeholder="Route (e.g., A→B→C)" required>
+        </div>
+        <div class="input-row">
+         <input id="driverId" type="number" placeholder="Driver ID (optional)">
+          
+        </div>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button class="small-btn" type="submit">Save Bus</button>
+          <button type="button" class="small-btn" style="background:#444;color:#ffd700" onclick="clearBusForm()">Clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="viewBus" class="section" style="display:none;">
+    <h2>Bus List</h2>
+    <table id="busTable">
+      <thead><tr><th>Bus Name</th><th>Driver</th><th>Route</th></tr></thead>
+      <tbody id="busTableBody"></tbody>
+    </table>
+  </div>
+
+  <div id="drivers" class="section" style="display:none;">
+    <h2>Drivers</h2>
+    <div class="card" style="max-width:800px;">
+      <form id="driverForm" style="margin-bottom:12px;">
+        <div class="input-row">
+          <input id="driverName" placeholder="Driver Name" required>
+          <input id="driverPhone" placeholder="Phone">
+        </div>
+        <div class="input-row">
+          <input id="driverLicense" placeholder="License No">
+          <div style="flex:1"></div>
+        </div>
+        <button class="small-btn" type="submit">Add Driver</button>
+      </form>
+      <h3 style="margin-top:12px;">Existing Drivers</h3>
+      <table id="driverTable" style="margin-top:8px;">
+        <thead><tr><th>Name</th><th>Phone</th><th>License</th></tr></thead>
+        <tbody id="driverTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="mapSection" class="section" style="display:none;">
+    <h2>Live Tracking</h2>
+    <div id="map"></div>
+  </div>
+</div>
+
+<script>
+const API_BASE = 'http://localhost:3000/api';
+
+// Escape helper
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+// Toggle sidebar dropdown
+function toggleDropdown(id) {
+  const menus = document.querySelectorAll('.dropdown');
+  menus.forEach(m => { if (m.id !== id) m.style.display='none'; });
+  const menu = document.getElementById(id);
+  menu.style.display = (menu.style.display==='flex')?'none':'flex';
+}
+
+// Show section
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(sec => sec.style.display='none');
+  const el = document.getElementById(id);
+  if(el) el.style.display='block';
+  if(id==='mapSection' && typeof map!=='undefined'){ setTimeout(()=>map.invalidateSize(),200); }
+}
+
+// Clear bus form
+function clearBusForm(){ document.getElementById('busForm').reset(); }
+
+// Initialize Leaflet map
+var map = L.map('map').setView([31.5204,74.3587],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
+var busIcon = L.icon({ iconUrl:'https://cdn-icons-png.flaticon.com/512/3097/3097144.png', iconSize:[40,40], iconAnchor:[20,40] });
+
+// --- DOM Ready
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // Load drivers
+  async function loadDrivers() {
+    try {
+      const res = await fetch(API_BASE+'/drivers');
+      const drivers = await res.json();
+      const tbody = document.getElementById('driverTableBody');
+      const select = document.getElementById('driverSelect');
+      tbody.innerHTML=''; select.innerHTML='<option value="">-- Assign Driver --</option>';
+      drivers.forEach(d=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${escapeHtml(d.Name)}</td><td>${escapeHtml(d.Phone||'')}</td><td>${escapeHtml(d.LicenseNo||'')}</td>`;
+        tbody.appendChild(tr);
+        const opt=document.createElement('option'); opt.value=d.DriverId; opt.textContent=d.Name; select.appendChild(opt);
+      });
+    } catch(e){ console.error('loadDrivers',e); }
+  }
+
+  // Load buses
+  async function loadBuses() {
+    try {
+      const res = await fetch(API_BASE+'/buses');
+      const buses = await res.json();
+      const tbody = document.getElementById('busTableBody'); tbody.innerHTML='';
+      buses.forEach(b=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML = `<td>${escapeHtml(b.Name)}</td><td>${escapeHtml(b.DriverId||'Unassigned')}</td><td>${escapeHtml(b.Route||'')}</td>`;
+
+        tbody.appendChild(tr);
+      });
+    } catch(e){ console.error('loadBuses',e); }
+  }
+
+  await loadDrivers();
+  await loadBuses();
+
+  // Driver form submit
+  document.getElementById('driverForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const name=document.getElementById('driverName').value.trim();
+    const phone=document.getElementById('driverPhone').value.trim();
+    const licenseNo=document.getElementById('driverLicense').value.trim();
+    if(!name){ alert('Driver name required'); return; }
+    try {
+      await fetch(API_BASE+'/drivers', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,phone,licenseNo})});
+      document.getElementById('driverForm').reset();
+      await loadDrivers();
+      alert('Driver added');
+    } catch(e){ console.error(e); alert('Failed to add driver'); }
+  });
+
+  // Bus form submit
+  document.getElementById('busForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const name=document.getElementById('busName').value.trim();
+    const route=document.getElementById('route').value.trim();
+    const driverId = document.getElementById('driverId').value.trim() || null;
+
+await fetch(API_BASE+'/buses', {
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body: JSON.stringify({ name, route, driverId })
+});
+
+    try {
+      await fetch(API_BASE+'/buses', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,route,driverId:driverId||null,latitude,longitude})});
+      document.getElementById('busForm').reset();
+      await loadBuses();
+      alert('Bus added');
+      showSection('viewBus');
+    } catch(e){ console.error(e); alert('Failed to add bus'); }
+  });
+
+});
+</script>
+</body>
+</html>
