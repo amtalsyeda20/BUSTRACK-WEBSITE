@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BusTrack | Live Tracking</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Leaflet Map Library -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+  * {margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif;}
+  html {scroll-behavior: smooth;}
+  body {
+    color: #fff;
+    background: #000;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: url("images/bus.gif") no-repeat center center/cover;
+    z-index: -2;
+    opacity: 0.4;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(180deg, rgba(0,0,0,0.7), rgba(10,10,40,0.8));
+    z-index: -1;
+  }
+
+  /* ---------- NAVBAR ---------- */
+  nav {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(10, 10, 30, 0.9);
+    padding: 15px 60px;
+    position: fixed;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid rgba(255,215,0,0.2);
+  }
+  .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo-container img {
+    height: 45px;
+    width: 45px;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255,215,0,0.5);
+  }
+  .logo-container h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffd700;
+    text-shadow: 0 0 8px rgba(255,215,0,0.5);
+  }
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+  }
+  nav ul li {
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  nav ul li:hover {
+    color: #ffd700;
+    text-shadow: 0 0 10px #ffd700;
+  }
+
+  /* ---------- HEADER ---------- */
+  .header {
+    margin-top: 130px;
+    text-align: center;
+    padding: 40px 20px;
+    animation: fadeIn 1.2s ease;
+  }
+  .header h2 {
+    font-size: 3rem;
+    color: #ffd700;
+    text-shadow: 0 0 20px rgba(255,215,0,0.6);
+  }
+  .header p {
+    color: #f0f0f0;
+    margin-top: 15px;
+    font-size: 1.2rem;
+  }
+
+  /* ---------- SELECTOR ---------- */
+  .bus-selector {text-align: center; margin-top: 25px; animation: fadeInUp 1.2s ease;}
+  select {
+    padding: 12px 25px;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    color: #0b1e45;
+    font-weight: 600;
+    background-color: #ffd700;
+    box-shadow: 0 0 25px rgba(255,215,0,0.6);
+    transition: 0.3s;
+  }
+  select:hover {transform: scale(1.05); box-shadow: 0 0 40px rgba(255,215,0,0.8);}
+
+  /* ---------- MAP ---------- */
+  #map {
+    height: 90vh;
+    width: 90%;
+    margin: 80px auto;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(255,215,0,0.2), 0 0 30px rgba(0,0,0,0.8);
+    animation: fadeIn 2s ease;
+  }
+
+  /* ---------- BACK BUTTON ---------- */
+  .back-btn {
+    display: inline-block;
+    margin: 30px auto;
+    background: linear-gradient(135deg, #ffd700, #ffcc33);
+    color: #0b1e45;
+    padding: 14px 30px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 0 20px rgba(255,215,0,0.5);
+    transition: 0.4s;
+  }
+  .back-btn:hover {
+    background: #fff;
+    color: #000;
+    box-shadow: 0 0 40px rgba(255,215,0,1);
+    transform: scale(1.08);
+  }
+
+ /* ---------- FEEDBACK SECTION ---------- */
+.feedback {
+  background: url("images/road.jpg") no-repeat center center/cover;
+  padding: 80px 20px;
+  text-align: center;
+  margin: 40px auto;
+}
+.feedback h2, .feedback p {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(0,0,0,0.7); /* text readable over image */
+}
+.feedback form input,
+.feedback form textarea,
+.feedback form select {
+  background: rgba(0,0,0,0.3); /* slightly dark for readability */
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 1rem;
+  outline: none;
+}
+
+/* ---------- CONTACT SECTION ---------- */
+.contact {
+  background: url("images/contatct.webp") no-repeat center center/cover;
+  padding: 80px 20px;
+  text-align: center;
+  margin: 40px auto;
+}
+.contact h2, .contact .info div {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(0,0,0,0.7);
+}
+.contact form input,
+.contact form textarea {
+  background: rgba(0,0,0,0.3); /* slightly dark for readability */
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 1rem;
+  outline: none;
+}
+
+  /* ---------- FOOTER ---------- */
+  footer {
+    background: rgba(5,10,30,0.95);
+    text-align: center;
+    padding: 20px;
+    color: #aaa;
+    font-size: 0.9rem;
+    border-top: 1px solid rgba(255,215,0,0.2);
+  }
+
+  /* ---------- ANIMATIONS ---------- */
+  @keyframes fadeIn {from {opacity: 0; transform: translateY(20px);} to {opacity: 1; transform: translateY(0);}}
+  @keyframes fadeInUp {from {opacity: 0; transform: translateY(40px);} to {opacity: 1; transform: translateY(0);}}
+
+  /* ---------- FEEDBACK TOP (image only with text) ---------- */
+.feedback {
+  background: url("images/road2.jpg") no-repeat center center/cover;
+  padding: 300px  150px;
+  text-align: center;
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(0,0,0,0.7);
+}
+.feedback-top h2 {
+  font-size: 3.5rem;
+  margin-bottom: 10px;
+}
+.feedback-top p {
+  font-size: 2.2rem;
+  color: #fff;
+}
+
+/* ---------- FEEDBACK FORM AREA ---------- */
+.feedback-form {
+  background: radial-gradient(circle at top, #0b1e45 0%, #07132b 100%);
+  color: #fff;
+  text-align: center;
+  padding: 100px 20px;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+.feedback-form h3 {
+  color: #ffd700;
+  margin-bottom: 25px;
+  font-size: 2rem;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  animation: fadeIn 1.5s ease;
+}
+
+.feedback-form form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  max-width: 500px;
+  margin: 0 auto;
+  animation: fadeInUp 1.5s ease;
+}
+
+.feedback-form input,
+.feedback-form textarea,
+.feedback-form select {
+  width: 100%;
+  background: rgba(10, 20, 50, 0.7);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  color: #fff;
+  border-radius: 15px;
+  padding: 14px 16px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.feedback-form input:focus,
+.feedback-form textarea:focus,
+.feedback-form select:focus {
+  border-color: #ffd700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+  transform: scale(1.02);
+}
+
+.feedback-form button {
+  background: linear-gradient(135deg, #ffd700, #ffcc33);
+  color: #0b1e45;
+  padding: 14px 35px;
+  border: none;
+  border-radius: 40px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.feedback-form button:hover {
+  background: #fff;
+  color: #000;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.9);
+  transform: scale(1.07);
+}
+
+
+/* ---------- CONTACT TOP (image + details only) ---------- */
+
+.contact {
+  position: relative;
+  background: url("images/contact.webp") no-repeat center center/cover;
+  padding: 150px 15px;
+  text-align: center;
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(0,0,0,0.7);
+  overflow: hidden;
+}
+
+/* This adds a soft dark transparent layer above the image */
+.contact::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* controls transparency — 0.45 = medium dark */
+  z-index: 0;
+}
+
+/* make sure text stays visible above overlay */
+.contact * {
+  position: relative;
+  z-index: 1;
+}
+
+.contact h2 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+.contact .info div {
+  margin-bottom: 10px;
+  color: #fff;
+  font-size: 1.8rem;
+}
+
+/* ---------- CONTACT FORM AREA ---------- */
+.contact-form {
+  background: radial-gradient(circle at top, #0b1e45 0%, #061028 100%);
+  color: #fff;
+  text-align: center;
+  padding: 100px 20px;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+.contact-form h3 {
+  color: #ffd700;
+  margin-bottom: 25px;
+  font-size: 2rem;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  animation: fadeIn 1.5s ease;
+}
+
+.contact-form form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  max-width: 500px;
+  margin: 0 auto;
+  animation: fadeInUp 1.5s ease;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  background: rgba(10, 20, 50, 0.7);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  color: #fff;
+  border-radius: 15px;
+  padding: 14px 16px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: #ffd700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+  transform: scale(1.02);
+}
+
+.contact-form button {
+  background: linear-gradient(135deg, #ffd700, #ffcc33);
+  color: #0b1e45;
+  padding: 14px 35px;
+  border: none;
+  border-radius: 40px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.contact-form button:hover {
+  background: #fff;
+  color: #000;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.9);
+  transform: scale(1.07);
+}
+/* ---------- CONTACT & FEEDBACK FORM STYLING ---------- */
+.contact-section, .feedback-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: 100px 10%;
+  background: #0b1e45;
+  color: #fff;
+  gap: 40px;
+}
+
+.contact-info, .feedback-info {
+  flex: 1 1 40%;
+}
+
+.contact-info h2, .feedback-info h2 {
+  font-size: 2rem;
+  color: #ffd700;
+  margin-bottom: 20px;
+}
+
+.contact-info ul, .feedback-info ul {
+  list-style: none;
+  padding: 0;
+}
+
+.contact-info li, .feedback-info li {
+  margin: 10px 0;
+  font-size: 1rem;
+  color: #f0f0f0;
+}
+
+.contact-form, .feedback-form {
+  flex: 1 1 55%;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.2);
+}
+
+.contact-form form input,
+.feedback-form form input,
+.contact-form form textarea,
+.feedback-form form textarea {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  transition: 0.3s;
+}
+
+.contact-form form input:focus,
+.feedback-form form input:focus,
+.contact-form form textarea:focus,
+.feedback-form form textarea:focus {
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 10px #ffd700;
+}
+
+.contact-form form button,
+.feedback-form form button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #ffd700, #ffcc33);
+  color: #0b1e45;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.contact-form form button:hover,
+.feedback-form form button:hover {
+  background: #fff;
+  color: #000;
+  transform: scale(1.05);
+}
+
+
+
+
+</style>
+</head>
+<body>
+
+<!-- ---------- NAVBAR ---------- -->
+<nav>
+  <div class="logo-container">
+    <img src="images/pic1 .jpeg" alt="BusTrack Logo">
+    <h1>BusTrack</h1>
+  </div>
+  <ul>
+    <li onclick="goHome()">Home</li>
+    <li><a href="#feedback" style="text-decoration:none;color:inherit;">Feedback</a></li>
+    <li><a href="#contact" style="text-decoration:none;color:inherit;">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- ---------- HEADER ---------- -->
+<section class="header">
+  <h2>Live Bus Tracking 🛰️</h2>
+  <p>Track your ride in real-time — powered by BusTrack for smarter, faster, and safer travel.</p>
+</section>
+
+<!-- ---------- BUS SELECTOR ---------- -->
+<div class="bus-selector">
+  <label for="busSelect"><b>Select Your Bus:</b></label>
+  <select id="busSelect" onchange="changeBus()">
+    <option value="1">Bus 1 - Route A</option>
+    <option value="2">Bus 2 - Route B</option>
+    <option value="3">Bus 3 - Route C</option>
+  </select>
+</div>
+
+<!-- ---------- MAP ---------- -->
+<div id="map"></div>
+
+<div style="text-align:center;">
+  <a href="dashboard.html" class="back-btn">⬅ Back to Dashboard</a>
+</div>
+
+<!-- ---------- FEEDBACK SECTION ---------- -->
+<section class="feedback" id="feedback">
+  <div class="feedback-top">
+    <h2>We Value Your Feedback 💬</h2>
+    <p>Tell us how BusTrack is helping you or what we can improve!</p>
+  </div>
+</section>
+
+<!-- ================= FEEDBACK form ================= -->
+<section class="feedback-section">
+  <div class="feedback-info">
+    <h2>Share Your Feedback</h2>
+    <p>We value your opinion! Tell us what you liked and what we can improve. Your feedback helps us grow.</p>
+    <ul>
+      <li><i class="fa fa-star"></i> Honest reviews make our service better</li>
+      <li><i class="fa fa-comments"></i> Every comment is read carefully</li>
+    </ul>
+  </div>
+
+  <div class="feedback-form">
+    <form id="feedbackForm">
+  <input type="text" id="fbName" name="name" placeholder="Your name" required>
+  <input type="email" id="fbEmail" name="email" placeholder="Your email" required>
+  <textarea id="fbMessage" name="message" placeholder="Your feedback message" required></textarea>
+  <button type="submit">Submit Feedback</button>
+</form>
+
+  </div>
+</section>
+
+<!-- ---------- CONTACT SECTION ---------- -->
+<section class="contact" id="contact">
+  <div class="contact-top">
+    <h2>Contact Us 📞</h2>
+    <div class="info">
+      <div><h4>Email</h4><p>support@bustrack.com</p></div>
+      <div><h4>Phone</h4><p>+92 300 1234567</p></div>
+      <div><h4>Office</h4><p>Karachi, Pakistan</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACT form ================= -->
+<section class="contact-section">
+  <div class="contact-info">
+    <h2>Have a Question? Contact Us Now</h2>
+    <p>Your trips just got easier – sit back and enjoy the ride. Travel on modern transport with the best drivers!</p>
+    <ul>
+      <li><i class="fa fa-phone"></i> +9-500-025-200</li>
+      <li><i class="fa fa-envelope"></i> support@emailaddress.com</li>
+    </ul>
+  </div>
+
+  <div class="contact-form">
+    <form id="contactForm">
+  <input type="text" id="ctName" name="name" placeholder="Your name" required>
+  <input type="text" id="ctPhone" name="phone" placeholder="Phone number">
+  <input type="email" id="ctEmail" name="email" placeholder="Your email" required>
+  <input type="text" id="ctSubject" name="subject" placeholder="Subject" required>
+  <textarea id="ctMessage" name="message" placeholder="Message" required></textarea>
+  <button type="submit">Send Message</button>
+</form>
+
+  </div>
+</section>
+
+
+
+<!-- ---------- FOOTER ---------- -->
+<footer>© 2025 BusTrack | Real-Time Smart Transit Solutions 🚌</footer>
+
+<script>
+function goHome() {
+  window.location.href = "dashboard.html";
+}
+
+// Initialize Map
+const map = L.map('map').setView([33.6844, 73.0479], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; BusTrack' }).addTo(map);
+const buses = {
+  1: L.marker([33.6844, 73.0479]).addTo(map).bindPopup("🚌 Bus 1 - Route A"),
+  2: L.marker([33.6930, 73.0650]).addTo(map).bindPopup("🚌 Bus 2 - Route B"),
+  3: L.marker([33.6700, 73.0300]).addTo(map).bindPopup("🚌 Bus 3 - Route C")
+};
+let currentBus = buses[1];
+currentBus.openPopup();
+function changeBus() {
+  const id = document.getElementById('busSelect').value;
+  const bus = buses[id];
+  map.setView(bus.getLatLng(), 14);
+  bus.openPopup();
+}
+setInterval(() => {
+  Object.values(buses).forEach(marker => {
+    const lat = marker.getLatLng().lat + (Math.random() - 0.5) * 0.002;
+    const lng = marker.getLatLng().lng + (Math.random() - 0.5) * 0.002;
+    marker.setLatLng([lat, lng]);
+  });
+}, 3000);
+
+// ================= BACKEND CONNECTION =================
+
+// Feedback form submission
+document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('fbName').value;
+  const email = document.getElementById('fbEmail').value;
+  const message = document.getElementById('fbMessage').value;
+
+  try {
+    const res = await fetch('http://localhost:5000/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, message })
+    });
+    const text = await res.text();
+    alert(text);
+    e.target.reset();
+  } catch (err) {
+    alert('⚠️ Could not send feedback. Please try again later.');
+    console.error(err);
+  }
+});
+
+// Contact form submission
+document.getElementById('contactForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('ctName').value;
+  const email = document.getElementById('ctEmail').value;
+  const subject = document.getElementById('ctSubject').value;
+  const message = document.getElementById('ctMessage').value;
+
+  try {
+    const res = await fetch('http://localhost:5000/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, subject, message })
+    });
+    const text = await res.text();
+    alert(text);
+    e.target.reset();
+  } catch (err) {
+    alert('⚠️ Could not send message. Please try again later.');
+    console.error(err);
+  }
+});
+</script>
+
+</body>
+</html>
