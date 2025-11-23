@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - SmartBus</title>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  body {
+    margin: 0;
+    background: url('images/logo 6.jpg') no-repeat center center/cover;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #fff;
+    overflow: hidden;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to right, rgba(0,0,0,0.85), rgba(0,0,0,0.3));
+    z-index: 0;
+  }
+
+  /* ---------------- HEADER LIKE HOME PAGE ---------------- */
+  header {
+    position: absolute;
+    top: 25px;
+    left: 60px;
+    display: flex;
+    align-items: center;
+    z-index: 5;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+  }
+
+  header:hover {
+    transform: scale(1.05);
+  }
+
+  header img {
+    width: 70px;
+    height: 50px;
+    margin-right: 12px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.1rem;
+    font-weight: 600;
+    color: #ffcc00;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+  }
+
+  /* ---------------- BACK BUTTON SMALLER ---------------- */
+  .back-logo {
+    position: absolute;
+    top: 35px;
+    right: 50px;
+    width: 55px;   /* SMALLER SIZE */
+    height: 55px;
+    cursor: pointer;
+    z-index: 5;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    filter: drop-shadow(0 0 8px rgba(255,215,0,0.5));
+  }
+
+  .back-logo:hover {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 12px rgba(255,255,150,0.8));
+  }
+
+  /* ---------------- LOGIN CONTENT BOX MOVED UP ---------------- */
+  .content {
+    position: relative;
+    z-index: 1;
+    margin-left: 12%;
+    margin-top: -20px;  /* MOVED UP SLIGHTLY */
+    max-width: 420px;
+  }
+
+  .content h2 {
+    font-size: 3.2rem;
+    font-weight: 800;
+    margin-bottom: 15px;
+    background: linear-gradient(90deg, #fff, #ffd700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px rgba(255,255,150,0.3);
+    animation: fadeIn 2s ease-out;
+  }
+
+  .content h3 {
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: #f8f8f8;
+    margin-bottom: 40px;
+    text-shadow: 0 0 15px rgba(255, 255, 120, 0.3);
+    animation: slideIn 2s ease-out;
+  }
+
+  .content input, .content select {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 20px;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    border-bottom: 2px solid #ffd700;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    border-radius: 6px;
+    transition: 0.3s;
+  }
+
+  /* SELECT STYLES FIXED */
+  .content select {
+    background-color: #fff;
+    color: #000;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+    appearance: none;
+  }
+
+  .content input:focus,
+  .content select:focus {
+    border-bottom: 2px solid #fff;
+    box-shadow: 0 0 15px rgba(255,255,200,0.4);
+  }
+
+  .content button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg, #ffd700, #fff);
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(255,215,0,0.4);
+  }
+
+  .content button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255,255,150,0.6);
+  }
+
+  .footer {
+    position: absolute;
+    bottom: 25px;
+    left: 12%;
+    font-size: 0.9rem;
+    color: #ccc;
+    z-index: 2;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @media (max-width: 768px) {
+    body { justify-content: center; text-align: center; }
+    header { left: 50%; transform: translateX(-50%); }
+    .content { margin-left: 0; width: 85%; margin-top: 60px; }
+    .back-logo { right: 20px; width: 45px; height: 45px; }
+    .footer { left: 50%; transform: translateX(-50%); }
+  }
+</style>
+</head>
+
+<body>
+
+<!-- HEADER SAME AS HOME PAGE -->
+<header onclick="goHome()">
+  <img src="images/pic1 .jpeg" alt="SmartBus Logo">
+  <h1>BusTrack</h1>
+</header>
+
+<!-- SMALLER BACK BUTTON -->
+<img src="images/back2.png" alt="Back" class="back-logo" onclick="goHome()">
+
+<div class="content">
+  <h2>Access Your Journey!</h2>
+  <h3>Login to continue your smart journey</h3>
+
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+
+  <select id="role">
+    <option value="user" selected>User</option>
+    <option value="admin">Administrator</option>
+  </select>
+
+  <button onclick="login()">Login</button>
+</div>
+
+<div class="footer">© 2025 Bus Tracking System</div>
+
+<script>
+  function login() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const role = document.getElementById('role').value;
+
+    const adminUsername = "admin";
+    const adminPassword = "admin123";
+
+    if (!username || !password) {
+      alert('Please enter username and password');
+      return;
+    }
+
+    if (role === "admin") {
+      if (username === adminUsername && password === adminPassword) {
+        localStorage.setItem("loggedRole", "admin");
+        window.location.href = "admin.html";
+      } else {
+        alert("Incorrect admin credentials!");
+      }
+    } else {
+      localStorage.setItem("loggedRole", "user");
+      window.location.href = "dashboard.html";
+    }
+  }
+
+  function goHome() {
+    window.location.href = 'index.html';
+  }
+</script>
+
+</body>
+</html>

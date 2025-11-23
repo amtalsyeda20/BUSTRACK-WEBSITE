@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SmartBus Dashboard</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  /* ---------- GLOBAL ---------- */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  body {
+    background-color: #0b1e45;
+    color: #fff;
+    overflow-x: hidden;
+  }
+
+  /* ---------- NAVBAR ---------- */
+nav {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(5, 10, 30, 0.85);
+  padding: 15px 60px;
+  position: fixed;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(6px);
+}
+
+/* Logo + Name Container */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+nav h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffd700;
+  letter-spacing: 1px;
+}
+
+/* Navbar menu */
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+nav ul li {
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+nav ul li:hover {
+  color: #ffd700;
+}
+
+
+  /* ---------- HERO / HOME SECTION ---------- */
+  .hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    overflow: hidden;
+  }
+
+  /* 🌟 Background GIF */
+  .hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("images/bus.gif") no-repeat center center/cover; /* 👈 put your GIF path here */
+    z-index: -2;
+  }
+
+  /* Overlay for readability */
+  .hero::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 10, 30, 0.4);
+    z-index: -1;
+  }
+
+  .hero-content {
+    animation: fadeIn 1.5s ease;
+    padding: 0 20px;
+  }
+
+  .hero h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+  }
+
+  .hero p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #f0f0f0;
+  }
+
+  .btn {
+    padding: 12px 25px;
+    background-color: #ffd700;
+    color: #0b1e45;
+    border: none;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .btn:hover {
+    background-color: #fff;
+    transform: scale(1.05);
+  }
+
+  /* ---------- INFO SECTION ---------- */
+  /* ---------- INFO SECTION ---------- */
+.info-section {
+  position: relative;
+  padding: 80px 60px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 40px;
+  text-align: center;
+  color: #fff;
+  overflow: hidden;
+}
+
+/* Add animated bus background */
+.info-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("images/bus.gif") no-repeat center center/cover;
+  z-index: -2;
+}
+
+/* Add dark overlay for text readability */
+.info-section::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(5, 10, 30, 0.6);
+  z-index: -1;
+}
+
+.info-card {
+  width: 280px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+  transition: 0.3s;
+}
+
+.info-card:hover {
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.info-card h3 {
+  color: #ffd700;
+  margin-bottom: 10px;
+}
+
+  /* ---------- FOOTER ---------- */
+  footer {
+    background: #050c23;
+    text-align: center;
+    padding: 20px;
+    color: #aaa;
+    font-size: 0.9rem;
+  }
+
+  /* ---------- ANIMATION ---------- */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 768px) {
+    nav {
+      flex-direction: column;
+      gap: 10px;
+      padding: 15px;
+    }
+
+    .hero h2 {
+      font-size: 2rem;
+    }
+  }
+
+  .info-card {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s ease-out;
+}
+
+.info-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+  
+</style>
+</head>
+
+<body>
+
+
+<!-- ---------- NAVBAR ---------- -->
+<nav>
+  <div class="logo-container">
+    <img src="images/pic1 .jpeg" alt="BusTrack Logo" class="logo">
+    <h1>BusTrack</h1>
+  </div>
+  <ul>
+   
+    <li onclick="goHome()">Home</li>
+    <script>
+function goHome() {
+  window.location.href = "index.html";
+}
+
+function goToTracking() {
+  window.location.href = "tracking.html";
+}
+</script>
+    <li onclick="goToTracking()">Tracking</li>
+  </ul>
+</nav>
+
+
+<!-- ---------- HERO / HOME SECTION ---------- -->
+<section class="hero" id="home">
+  <div class="hero-content">
+    <h2>Your Journey, Your Time – Powered by Smart Tracking 🚍</h2>
+    <p>Say goodbye to waiting and guessing — SmartBus keeps you connected to every route in real-time!
+Experience travel that’s reliable, interactive, and perfectly timed for your day.
+Because with SmartBus, every journey begins smartly.</p>
+    <button class="btn" onclick="goToTracking()">Track Your Bus</button>
+  </div>
+</section>
+
+<!-- ---------- INFO SECTION ---------- -->
+<section class="info-section" id="info">
+  <div class="info-card">
+    <h3>Real-Time Updates</h3>
+    <p>Stay informed with live bus tracking and route details updated every few seconds.</p>
+  </div>
+  <div class="info-card">
+    <h3>Safe & Reliable</h3>
+    <p>Secure data management and trusted bus operators for your peace of mind.</p>
+  </div>
+  <div class="info-card">
+    <h3>Smart Design</h3>
+    <p>Enjoy a sleek, user-friendly interface built for a smooth and intuitive experience.</p>
+  </div>
+  <div class="info-card">
+    <h3>24/7 Support</h3>
+    <p>Need help? Our dedicated team is here to assist you anytime.</p>
+  </div>
+</section>
+
+<!-- ---------- FOOTER ---------- -->
+<footer>
+  bustrack 2025 | Designed for smooth, safe, and smart travel 🚌
+</footer>
+
+<script>
+function goToTracking() {
+  
+  window.location.href = "tracking.html";
+}
+
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+}
+
+</script>
+<script>
+const infoCards = document.querySelectorAll('.info-card');
+
+function checkVisibility() {
+  const triggerBottom = window.innerHeight * 0.85;
+
+  infoCards.forEach(card => {
+    const cardTop = card.getBoundingClientRect().top;
+
+    if(cardTop < triggerBottom){
+      card.classList.add('visible');
+    }
+  });
+}
+
+window.addEventListener('scroll', checkVisibility);
+window.addEventListener('load', checkVisibility);
+</script>
+
+</body>
+</html>
