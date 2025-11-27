@@ -113,82 +113,6 @@
       transform: translateY(-3px);
     }
 
-    /* ---------- Routes Section ---------- */
-    .routes-section {
-      padding: 90px 6%;
-      background: #ffffff;
-      color: #0f243c;
-      text-align: center;
-    }
-    .routes-section h2 {
-      font-size: 2.5rem;
-      margin-bottom: 40px;
-      color: #0f243c;
-    }
-
-    .routes-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 30px;
-    }
-
-    .route-box {
-      background: #f5f7fa;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: 0.3s;
-    }
-    .route-box:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-    }
-    .route-box h3 {
-      font-size: 1.4rem;
-      margin-bottom: 10px;
-      color: #0077cc;
-    }
-    .route-box p {
-      color: #555;
-      font-size: 1rem;
-    }
-
-    /* ---------- Features Section ---------- */
-    .features {
-      padding: 60px 5%;
-      background: #fff;
-      color: #0f243c;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      gap: 40px;
-    }
-
-    footer {
-      background: #0f243c;
-      color: #cfd8e5;
-      text-align: center;
-      padding: 30px 0;
-      font-size: 0.9rem;
-    }
-
-    /* ★★★★★ Animations ★★★★★ */
-    .fade-up {
-      opacity: 0;
-      transform: translateY(40px);
-      transition: all 0.8s ease-out;
-    }
-
-    .fade-up.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .delay-1 { transition-delay: 0.2s; }
-    .delay-2 { transition-delay: 0.4s; }
-    .delay-3 { transition-delay: 0.6s; }
-    .delay-4 { transition-delay: 0.8s; }
-
   </style>
 </head>
 
@@ -201,7 +125,6 @@
   </div>
   <nav>
     <a href="#">Home</a>
-    <a href="#routes">Routes</a>
     <a href="login.html">Login</a>
   </nav>
 </header>
@@ -214,53 +137,6 @@
   </div>
 </section>
 
-<section id="routes" class="routes-section">
-  <h2 class="fade-up">Available Bus Routes</h2>
-
-  <div class="routes-container">
-
-    <div class="route-box fade-up delay-1">
-      <h3>Route 1 – City Center to Airport</h3>
-      <p>Stops: Main Market → University Road → Express Highway → Airport</p>
-    </div>
-
-    <div class="route-box fade-up delay-2">
-      <h3>Route 2 – North Park to Downtown</h3>
-      <p>Stops: North Park → Mall Road → Clock Tower → Downtown Station</p>
-    </div>
-
-    <div class="route-box fade-up delay-3">
-      <h3>Route 3 – Bus Stand to Industrial Zone</h3>
-      <p>Stops: Bus Stand → Canal Road → Metro Circle → Industrial Zone</p>
-    </div>
-
-    <div class="route-box fade-up delay-4">
-      <h3>Route 4 – University to Residential Area</h3>
-      <p>Stops: University → Tech Road → Green Plaza → Residency</p>
-    </div>
-
-  </div>
-</section>
-
-<section class="features">
-  <div class="feature-box fade-up delay-1">
-    <img src="images/feature1.png" alt="Feature 1">
-    <h3>Real-Time Location</h3>
-    <p>Always know where your bus is, updated every minute.</p>
-  </div>
-
-  <div class="feature-box fade-up delay-2">
-    <img src="images/feature2.png" alt="Feature 2">
-    <h3>Instant Delay Alerts</h3>
-    <p>Receive notifications if your bus will arrive late.</p>
-  </div>
-
-  <div class="feature-box fade-up delay-3">
-    <img src="images/feature3.png" alt="Feature 3">
-    <h3>Comfort & Safety</h3>
-    <p>Modern buses, safe drivers, and comfortable journeys.</p>
-  </div>
-</section>
 
 <footer>
   &copy; 2025 BusTrack | Your city travel companion
