@@ -521,9 +521,7 @@
 <div class="bus-selector">
   <label for="busSelect"><b>Select Your Bus:</b></label>
   <select id="busSelect" onchange="changeBus()">
-    <option value="1">Bus 1 - Route A</option>
-    <option value="2">Bus 2 - Route B</option>
-    <option value="3">Bus 3 - Route C</option>
+   
   </select>
 </div>
 
@@ -552,16 +550,17 @@
       <li><i class="fa fa-comments"></i> Every comment is read carefully</li>
     </ul>
   </div>
-
-  <div class="feedback-form">
-    <form id="feedbackForm">
-  <input type="text" id="fbName" name="name" placeholder="Your name" required>
-  <input type="email" id="fbEmail" name="email" placeholder="Your email" required>
-  <textarea id="fbMessage" name="message" placeholder="Your feedback message" required></textarea>
-  <button type="submit">Submit Feedback</button>
-</form>
+<div class="feedback-form">
+  <div class="feedback-box">
+    <h2>Send Feedback</h2>
+    <input type="text" id="fbName" placeholder="Your Name" required>
+<input type="text" id="fbEmail" placeholder="Your Email" required>
+<textarea id="fbMessage" placeholder="Write message..." required></textarea>
+<button id="sendFeedbackBtn" type="button">Send</button>
 
   </div>
+</div>
+
 </section>
 
 <!-- ---------- CONTACT SECTION ---------- -->
@@ -569,7 +568,7 @@
   <div class="contact-top">
     <h2>Contact Us 📞</h2>
     <div class="info">
-      <div><h4>Email</h4><p>support@bustrack.com</p></div>
+      <div><h4>Email</h4><p>bustrack@gmail.com</p></div>
       <div><h4>Phone</h4><p>+92 300 1234567</p></div>
       <div><h4>Office</h4><p>Karachi, Pakistan</p></div>
     </div>
@@ -583,21 +582,24 @@
     <p>Your trips just got easier – sit back and enjoy the ride. Travel on modern transport with the best drivers!</p>
     <ul>
       <li><i class="fa fa-phone"></i> +9-500-025-200</li>
-      <li><i class="fa fa-envelope"></i> support@emailaddress.com</li>
+      <li><i class="fa fa-envelope"></i>bustrack@gmail.com</li>
     </ul>
   </div>
 
-  <div class="contact-form">
-    <form id="contactForm">
-  <input type="text" id="ctName" name="name" placeholder="Your name" required>
-  <input type="text" id="ctPhone" name="phone" placeholder="Phone number">
-  <input type="email" id="ctEmail" name="email" placeholder="Your email" required>
-  <input type="text" id="ctSubject" name="subject" placeholder="Subject" required>
-  <textarea id="ctMessage" name="message" placeholder="Message" required></textarea>
-  <button type="submit">Send Message</button>
-</form>
+<div class="contact-form">
+  <div class="contact-box">
+    <h2>Send a Message</h2>
+    <input type="text" id="ctName" placeholder="Your Name" required>
+    <input type="text" id="ctPhone" placeholder="Phone Number">
+    <input type="email" id="ctEmail" placeholder="Your Email" required>
+    <input type="text" id="ctSubject" placeholder="Subject" required>
+    <textarea id="ctMessage" placeholder="Your Message" required></textarea>
+   <button id="sendContactBtn" type="button">Send</button>
+   
 
   </div>
+</div>
+
 </section>
 
 
@@ -610,76 +612,222 @@ function goHome() {
   window.location.href = "dashboard.html";
 }
 
-// Initialize Map
-const map = L.map('map').setView([33.6844, 73.0479], 13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; BusTrack' }).addTo(map);
-const buses = {
-  1: L.marker([33.6844, 73.0479]).addTo(map).bindPopup("🚌 Bus 1 - Route A"),
-  2: L.marker([33.6930, 73.0650]).addTo(map).bindPopup("🚌 Bus 2 - Route B"),
-  3: L.marker([33.6700, 73.0300]).addTo(map).bindPopup("🚌 Bus 3 - Route C")
-};
-let currentBus = buses[1];
-currentBus.openPopup();
-function changeBus() {
-  const id = document.getElementById('busSelect').value;
-  const bus = buses[id];
-  map.setView(bus.getLatLng(), 14);
-  bus.openPopup();
-}
-setInterval(() => {
-  Object.values(buses).forEach(marker => {
-    const lat = marker.getLatLng().lat + (Math.random() - 0.5) * 0.002;
-    const lng = marker.getLatLng().lng + (Math.random() - 0.5) * 0.002;
-    marker.setLatLng([lat, lng]);
-  });
-}, 3000);
+// ---------- Initialize Map ----------
+const map = L.map('map').setView([24.8607, 67.0011], 13); // Front view: Karachi
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© BusTrack'
+}).addTo(map);
 
-// ================= BACKEND CONNECTION =================
+// ---------- Load Buses Added by Admin ----------
+let busList = JSON.parse(localStorage.getItem('buses')) || [];
+
+// Convert route strings to arrays if needed
+busList.forEach(bus => {
+    if (typeof bus.route === 'string') {
+        bus.route = JSON.parse(bus.route); // convert string to array
+    }
+    bus.speed = bus.speed || 0.01; // default speed if missing
+});
+
+let buses = {}; // Stores marker and route info for each bus
+let selectedBusId = null;
+
+// ---------- Update Dropdown Menu ----------
+function updateBusDropdown() {
+    const dropdown = document.getElementById('busSelect');
+    dropdown.innerHTML = '';
+    const placeholder = document.createElement('option');
+    placeholder.text = 'Select a Bus';
+    placeholder.value = '';
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    dropdown.appendChild(placeholder);
+
+    busList.forEach(bus => {
+        const option = document.createElement('option');
+        option.value = bus.id;
+        option.text = bus.name;
+        dropdown.appendChild(option);
+    });
+}
+
+updateBusDropdown();
+
+// ---------- Initialize All Bus Markers ----------
+
+busList.forEach(busData => {
+    const route = busData.route || [[24.8607, 67.0011]]; // default route
+    const status = Math.random() < 0.5 ? 'On Time ✅' : 'Delayed ⏰'; // random status
+
+    buses[busData.id] = {
+        marker: L.marker(route[0], {title: busData.name})
+            .addTo(map)
+            .bindPopup(`<b>${busData.name}</b> - ${status}`)
+            .openPopup(),
+        route: route,
+        index: 0,
+        speed: busData.speed || 0.01,
+        status: status
+    };
+});
+
+// ---------- Start Tracking Selected Bus ----------
+function startBusTracking(busId) {
+    selectedBusId = busId;
+
+    const bus = buses[busId];
+    if (!bus) return;
+
+    // Reset bus to start position
+    bus.index = 0;
+    bus.marker.setLatLng(bus.route[0]);
+    bus.marker.bindPopup(`<b>${busList.find(b => b.id==busId).name}</b>`).openPopup();
+
+    // Fit map to the bus route
+    map.fitBounds(L.polyline(bus.route).getBounds());
+}
+
+// ---------- Dropdown Change Event ----------
+document.getElementById('busSelect').addEventListener('change', function() {
+    startBusTracking(this.value);
+});
+
+// ---------- Move Buses Along Their Routes ----------
+function moveBuses() {
+    Object.keys(buses).forEach(busId => {
+        const bus = buses[busId];
+        if (bus.index >= bus.route.length - 1) return;
+
+        const [lat1, lng1] = bus.route[bus.index];
+        const [lat2, lng2] = bus.route[bus.index + 1];
+        const step = bus.speed;
+
+        const nextLat = lat1 + (lat2 - lat1) * step;
+        const nextLng = lng1 + (lng2 - lng1) * step;
+
+        bus.marker.setLatLng([nextLat, nextLng]);
+bus.marker.bindPopup(`<b>${busList.find(b => b.id==busId).name}</b> - ${bus.status}`);
+
+
+        // Snap to the next point
+        if (Math.abs(nextLat - lat2) < 0.0001 && Math.abs(nextLng - lng2) < 0.0001) {
+            bus.index++;
+            bus.route[bus.index] = [lat2, lng2];
+        }
+
+        // Center map on selected bus only
+        if (busId == selectedBusId) {
+            map.setView([nextLat, nextLng], 14);
+        }
+    });
+}
+
+// ---------- Start Simulation Loop ----------
+setInterval(moveBuses, 1000);
+
+
+
+// ================= FORMS save  =================
+
 
 // Feedback form submission
-document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const name = document.getElementById('fbName').value;
-  const email = document.getElementById('fbEmail').value;
-  const message = document.getElementById('fbMessage').value;
+window.addEventListener('DOMContentLoaded', function() {
+document.getElementById('sendFeedbackBtn').addEventListener('click', function() {
+  const name = document.getElementById('fbName').value.trim();
+  const email = document.getElementById('fbEmail').value.trim();
+  const message = document.getElementById('fbMessage').value.trim();
+ 
 
-  try {
-    const res = await fetch('http://localhost:5000/api/feedback', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, message })
-    });
-    const text = await res.text();
-    alert(text);
-    e.target.reset();
-  } catch (err) {
-    alert('⚠️ Could not send feedback. Please try again later.');
-    console.error(err);
+  // Validation
+  const nameRegex = /^[A-Za-z\s]+$/;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+
+  if (!nameRegex.test(name)) {
+    alert("❌ Enter a valid name (letters only).");
+    return;
   }
+
+  if (!emailRegex.test(email)) {
+    alert("❌ Enter a valid Gmail address (example@gmail.com).");
+    return;
+  }
+
+  if (!message) {
+    alert("❌ Please enter your feedback message.");
+    return;
+  }
+
+
+
+ const feedback = { 
+  id: Date.now().toString(),  // <- unique ID
+  name, 
+  email, 
+  message, 
+  date: new Date().toLocaleString() 
+};
+let messages = JSON.parse(localStorage.getItem('feedback')) || [];
+messages.push(feedback);
+localStorage.setItem('feedback', JSON.stringify(messages));
+
+  alert("✅ Thank you for your feedback!");
+  
+  // Clear fields
+  document.getElementById('fbName').value = '';
+  document.getElementById('fbEmail').value = '';
+  document.getElementById('fbMessage').value = '';
+
 });
+});
+
+
 
 // Contact form submission
-document.getElementById('contactForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const name = document.getElementById('ctName').value;
-  const email = document.getElementById('ctEmail').value;
-  const subject = document.getElementById('ctSubject').value;
-  const message = document.getElementById('ctMessage').value;
+window.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('sendContactBtn').addEventListener('click', function() {
+    const name = document.getElementById('ctName').value.trim();
+    const phone = document.getElementById('ctPhone').value.trim();
+    const email = document.getElementById('ctEmail').value.trim();
+    const subject = document.getElementById('ctSubject').value.trim();
+    const message = document.getElementById('ctMessage').value.trim();
 
-  try {
-    const res = await fetch('http://localhost:5000/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, subject, message })
-    });
-    const text = await res.text();
-    alert(text);
-    e.target.reset();
-  } catch (err) {
-    alert('⚠️ Could not send message. Please try again later.');
-    console.error(err);
-  }
+    const nameRegex = /^[A-Za-z\s]+$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    const phoneRegex = /^[0-9]+$/;
+
+
+    if (!nameRegex.test(name)) { alert("❌ user name only contains alphabets."); return; }
+    if (!emailRegex.test(email)) { alert("❌ Enter a valid Gmail."); return; }
+    if (!phoneRegex.test(phone)) { alert("❌ phone number only contains digits."); return; }
+    if (!subject || !message) { alert("❌ Subject/Message cannot be empty."); return; }
+
+    let messages = JSON.parse(localStorage.getItem('contactMessages')) || [];
+   messages.push({ 
+  id: Date.now().toString(),  // <- automatically generated unique ID
+  name, 
+  phone, 
+  email, 
+  subject, 
+  message, 
+  date: new Date().toLocaleString() 
 });
+
+    localStorage.setItem('contactMessages', JSON.stringify(messages));
+
+    alert("✅ Your message has been sent !");
+
+    document.getElementById('ctName').value = '';
+    document.getElementById('ctPhone').value = '';
+    document.getElementById('ctEmail').value = '';
+    document.getElementById('ctSubject').value = '';
+    document.getElementById('ctMessage').value = '';
+  });
+});
+
+ window.addEventListener('DOMContentLoaded', function() {
+      updateTrackingDropdown();
+  });
 </script>
 
 </body>
