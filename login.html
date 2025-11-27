@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login / Signup - SmartBus</title>
+<title>Login / Signup - TrackBus</title>
 
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
@@ -26,8 +27,11 @@
   h2 { font-size: 2.5rem; margin-bottom: 10px; text-align: center; color: #ffd700; }
   h3 { font-size: 1.2rem; margin-bottom: 30px; text-align: center; color: #fff; }
 
-  input { width:100%; padding:12px; margin-bottom:20px; border:none; border-bottom:2px solid #ffd700;
-    background:rgba(255,255,255,0.15); color:#fff; font-size:1rem; outline:none; border-radius:6px; transition:0.3s;}
+  input[type="text"], input[type="password"] { 
+    width:100%; padding:12px; margin-bottom:20px; border:none; 
+    border-bottom:2px solid #ffd700; background:rgba(255,255,255,0.15); 
+    color:#fff; font-size:1rem; outline:none; border-radius:6px; transition:0.3s;
+  }
   input:focus { border-bottom:2px solid #fff; box-shadow:0 0 15px rgba(255,255,200,0.4); }
 
   button { width:100%; padding:14px; background:linear-gradient(90deg,#ffd700,#fff);
@@ -35,11 +39,13 @@
     box-shadow:0 4px 15px rgba(255,215,0,0.4);}
   button:hover { transform:translateY(-3px); box-shadow:0 8px 25px rgba(255,255,150,0.6); }
 
-  .toggle { text-align:center; margin-top:10px; cursor:pointer; color:#ffd700; }
-  .toggle:hover { text-decoration: underline; }
+  .toggle, .toggleAdmin { text-align:center; margin-top:10px; cursor:pointer; color:#ffd700; }
+  .toggle:hover, .toggleAdmin:hover { text-decoration: underline; }
 
   .error { color: #ff6666; font-size: 0.9rem; margin-top:-15px; margin-bottom:15px; text-align:center; }
+  #isAdminCheck { margin-bottom:20px; }
 </style>
+
 </head>
 <body>
 
@@ -48,14 +54,17 @@
   <h3 id="formSubtitle">Access your journey!</h3>
 
   <!-- Login Form -->
+
   <div id="loginForm">
     <input type="text" id="loginUsername" placeholder="Username">
     <input type="password" id="loginPassword" placeholder="Password">
+    <label><input type="checkbox" id="isAdminCheck"> Are you admin?</label>
     <div class="error" id="loginError"></div>
     <button onclick="login()">Login</button>
   </div>
 
   <!-- Signup Form -->
+
   <div id="signupForm" style="display:none;">
     <input type="text" id="signupUsername" placeholder="Username">
     <div class="error" id="usernameError"></div>
@@ -98,7 +107,6 @@
     const confirmPassword = document.getElementById('signupConfirmPassword').value.trim();
     const usernameError = document.getElementById('usernameError');
 
-    // Username validation (letters only)
     if (!/^[A-Za-z]+$/.test(username)) {
       usernameError.textContent = "Username can contain letters only (no numbers or symbols)";
       return;
@@ -106,7 +114,6 @@
       usernameError.textContent = "";
     }
 
-    // Password validation
     if (!password || !confirmPassword) {
       alert("Please enter and confirm password");
       return;
@@ -116,7 +123,6 @@
       return;
     }
 
-    // Save new user in localStorage (demo purpose)
     let users = JSON.parse(localStorage.getItem('users') || '{}');
     if (users[username]) {
       alert("Username already exists!");
@@ -126,30 +132,41 @@
     localStorage.setItem('users', JSON.stringify(users));
 
     alert("Signup successful! Please login with your new account.");
-    toggleForms(); // Switch to login form
+    toggleForms();
   }
 
   function login() {
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
     const loginError = document.getElementById('loginError');
+    const isAdmin = document.getElementById('isAdminCheck').checked;
 
     if (!username || !password) {
       loginError.textContent = "Please enter username and password";
       return;
     }
 
-    // Get stored users
-    let users = JSON.parse(localStorage.getItem('users') || '{}');
-    if (users[username] && users[username] === password) {
-      localStorage.setItem("loggedRole", "user");
-      window.location.href = "dashboard.html";
+    if(isAdmin) {
+      const adminUsername = "admin"; // Change admin username if needed
+      const adminPassword = "admin123"; // Change admin password if needed
+
+      if(username === adminUsername && password === adminPassword){
+        localStorage.setItem("loggedRole", "admin");
+        window.location.href = "admin.html"; // admin panel
+      } else {
+        loginError.textContent = "Incorrect admin username or password!";
+      }
     } else {
-      loginError.textContent = "Incorrect username or password!";
+      let users = JSON.parse(localStorage.getItem('users') || '{}');
+      if(users[username] && users[username] === password){
+        localStorage.setItem("loggedRole", "user");
+        window.location.href = "dashboard.html"; // user dashboard
+      } else {
+        loginError.textContent = "Incorrect username or password!";
+      }
     }
   }
 </script>
 
 </body>
 </html>
-
