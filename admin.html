@@ -1,49 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>SmartBus Admin Panel</title>
 
-<!-- Leaflet Map Links -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
-  * {margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif;}
-  body { display: flex; background: url("images/bg pic1.jpg") no-repeat center center/cover; height: 100vh; color: #fff; overflow: hidden; }
-  .sidebar { width: 260px; background: rgba(10,20,40,0.95); height: 100vh; padding: 25px; display: flex; flex-direction: column; box-shadow: 3px 0 15px rgba(0,0,0,0.4); position: fixed; }
-  .sidebar h2 { text-align: center; color: #ffd700; margin-bottom: 25px; font-size: 1.6rem; }
-  .sidebar button { background: none; border: none; color: #fff; text-align: left; font-size: 1.05rem; padding: 12px; margin: 5px 0; cursor: pointer; transition: 0.3s; border-radius: 6px; }
-  .sidebar button:hover { background: rgba(255,255,255,0.15); color: #ffd700; }
-  .dropdown { display: none; flex-direction: column; margin-left: 20px; }
-  .dropdown a { color: #ddd; text-decoration: none; font-size: 0.95rem; margin: 6px 0; padding-left: 10px; transition: 0.3s; }
-  .dropdown a:hover { color: #ffd700; }
-  .main { margin-left: 280px; padding: 40px; flex: 1; background: rgba(0,0,0,0.5); overflow-y: scroll; height: 100vh; }
-  .main h1 { color: #ffd700; margin-bottom: 20px; font-size: 2rem; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
-  .section { background: rgba(255,255,255,0.1); padding: 25px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-  .section h2 { color: #ffd700; margin-bottom: 10px; font-size: 1.4rem; }
-  .section p { color: #eee; line-height: 1.7; font-size: 1.05rem; }
-  #map { height: 400px; width: 100%; border-radius: 10px; margin-top: 20px; }
-  table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-  table, th, td { border: 1px solid rgba(255,255,255,0.2); }
-  th, td { padding: 10px; text-align: left; }
-  th { background: rgba(255,215,0,0.2); color: #ffd700; }
-  td { background: rgba(255,255,255,0.05); }
-  .card { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); border-radius: 12px; padding: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.45); transition: transform .35s ease, box-shadow .35s ease; transform: translateY(0); }
-  .card:hover { transform: translateY(-8px); box-shadow: 0 18px 40px rgba(0,0,0,0.55); }
-  .input-row { display:flex; gap:12px; margin-bottom:12px; }
-  .input-row input, .input-row select { flex:1; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.35); color:#fff; }
-  .small-btn { padding:10px 14px; border-radius:8px; border:none; cursor:pointer; background:#ffd700; color:#000; font-weight:700; box-shadow: 0 6px 18px rgba(255,215,0,0.12); }
-  .fade-in { animation: fadeIn .6s ease both; }
-  @keyframes fadeIn { from {opacity:0; transform: translateY(8px)} to {opacity:1; transform:none} }
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+  body{display:flex;background:url("images/bg pic1.jpg") no-repeat center/cover;height:100vh;color:#fff;overflow:hidden}
+  .sidebar{width:260px;background:rgba(10,20,40,0.95);height:100vh;padding:25px;display:flex;flex-direction:column;box-shadow:3px 0 15px rgba(0,0,0,0.4);position:fixed}
+  .sidebar h2{text-align:center;color:#ffd700;margin-bottom:25px;font-size:1.6rem}
+  .sidebar button{background:none;border:none;color:#fff;text-align:left;font-size:1.05rem;padding:12px;margin:5px 0;cursor:pointer;transition:.3s;border-radius:6px}
+  .sidebar button:hover{background:rgba(255,255,255,0.15);color:#ffd700}
+  .dropdown{display:none;flex-direction:column;margin-left:20px}
+  .dropdown a{color:#ddd;text-decoration:none;font-size:0.95rem;margin:6px 0;padding-left:10px;transition:.3s}
+  .dropdown a:hover{color:#ffd700}
+  .main{margin-left:280px;padding:30px;flex:1;background:rgba(0,0,0,0.45);overflow-y:auto;height:100vh}
+  .main h1{color:#ffd700;margin-bottom:20px;font-size:2rem;text-shadow:0 0 10px rgba(255,215,0,.5)}
+  .section{background:rgba(255,255,255,0.06);padding:20px;border-radius:12px;margin-bottom:20px;box-shadow:0 5px 15px rgba(0,0,0,.3)}
+  .section h2{color:#ffd700;margin-bottom:10px}
+  #map{height:500px;width:100%}
+  table{width:100%;border-collapse:collapse;margin-top:8px}
+  th,td{padding:10px;border:1px solid rgba(255,255,255,0.08);text-align:left}
+  th{background:rgba(255,215,0,0.15);color:#ffd700}
+  td{background:rgba(255,255,255,0.03)}
+  .small-btn{padding:8px 12px;border-radius:8px;border:none;cursor:pointer;background:#ffd700;color:#000;font-weight:700}
+  .danger{background:#ff6b6b;color:#fff}
+  .muted{background:#444;color:#ffd700}
+  .flex-row{display:flex;gap:12px}
+  .input-row input{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(0,0,0,0.35);color:#fff}
+  .card{padding:12px;border-radius:10px}
+  .small{font-size:.9rem;padding:6px 8px}
+  .center{text-align:center}
 </style>
 </head>
 <body>
 
 <div class="sidebar">
   <h2>BusTrack Admin</h2>
-  <button onclick="window.location.href='login.html'" style="background:#444; color:#ffd700; margin-bottom: 15px; padding:10px; border:none; border-radius:6px; cursor:pointer;">⬅ Back to Login</button>
+  <button onclick="window.location.href='login.html'" style="background:#444;color:#ffd700;margin-bottom:12px;padding:10px;border-radius:6px">⬅ Back to Login</button>
   <button onclick="toggleDropdown('busMenu')">🚌 Manage Bus</button>
   <div class="dropdown" id="busMenu">
     <a href="#" onclick="showSection('addBus')">Add Bus</a>
@@ -57,179 +55,637 @@
   <div class="dropdown" id="trackMenu">
     <a href="#" onclick="showSection('mapSection')">Track Bus</a>
   </div>
+  <button onclick="toggleDropdown('msgsMenu')">✉️ Messages</button>
+  <div class="dropdown" id="msgsMenu">
+    <a href="#" onclick="showSection('contacts')">User Contacts</a>
+    <a href="#" onclick="showSection('feedbacks')">User Feedback</a>
+  </div>
   <button onclick="showSection('overview')">📊 Overview</button>
 </div>
 
 <div class="main" id="mainContent">
   <div id="overview" class="section">
-    <h1>Welcome to SmartBus Admin Panel</h1>
-    <p>
-      Monitor, manage, and optimize your transport operations effortlessly...
-    </p>
+    <h1>Welcome to BusTrack Admin Panel</h1>
+    <p>Monitor, manage, and optimize your transport operations effortlessly. </p>
+
   </div>
 
-  <div id="addBus" class="section" style="display:none;">
-    <h2>Add New Bus</h2>
-    <div class="card fade-in" style="max-width:800px;">
-      <form id="busForm">
-        <div class="input-row">
-          <input id="busName" type="text" placeholder="Bus Name" required>
-          <input id="route" type="text" placeholder="Route (e.g., A→B→C)" required>
-        </div>
-        <div class="input-row">
-         <input id="driverId" type="number" placeholder="Driver ID (optional)">
-          
-        </div>
-        <div style="display:flex; gap:10px; margin-top:10px;">
-          <button class="small-btn" type="submit">Save Bus</button>
-          <button type="button" class="small-btn" style="background:#444;color:#ffd700" onclick="clearBusForm()">Clear</button>
-        </div>
-      </form>
-    </div>
-  </div>
+ <!-- ADMIN: Add Bus Section -->
+<div id="addBus" class="section" style="display:none;">
+  <h2>Add New Bus</h2>
+  <div class="card">
+    <form id="busForm">
+      <div class="flex-row">
+        <input id="busName" type="text" placeholder="Bus Name" required>
+        <input id="driverIdForBus" type="text" placeholder="Driver ID (Digits Only)" required>
+      </div>
+      <div class="flex-row" style="margin-top:8px">
+       <select id="routeSelect" required>
+  <option value="" disabled selected>Select Route</option>
+  <option value="route1">Route 1: Saddar → Clifton → Defence → Gulshan</option>
+  <option value="route2">Route 2: Gulshan → Korangi → Shah Faisal → Landhi</option>
+  <option value="route3">Route 3: North Nazimabad → Liaquatabad → SITE → Lyari</option>
+  <option value="route4">Route 4: Malir → Korangi → Clifton → Saddar</option>
+  <option value="route5">Route 5: PECHS → Jamshed → Gulshan → Defence</option>
+  <option value="route6">Route 6: Clifton → Saddar → Lyari → Landhi</option>
+  <option value="route7">Route 7: Korangi → Shah Faisal → Gulshan → North Nazimabad</option>
+  <option value="route8">Route 8: Saddar → PECHS → Jamshed → Malir</option>
+  <option value="route9">Route 9: Clifton → Defence → Gulshan → Korangi</option>
+  <option value="route10">Route 10: Lyari → Landhi → Shah Faisal → SITE</option>
+</select>
 
+
+        
+        <input id="initialLat" type="number" step="any" placeholder="Initial Latitude ">
+        <input id="initialLng" type="number" step="any" placeholder="Initial Longitude">
+      </div>
+      <div style="margin-top:10px">
+        <button class="small-btn" type="submit">Save Bus</button>
+        <button type="button" class="small-btn muted" onclick="clearBusForm()">Clear</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+  <!-- VIEW BUSES -->
   <div id="viewBus" class="section" style="display:none;">
     <h2>Bus List</h2>
     <table id="busTable">
-      <thead><tr><th>Bus Name</th><th>Driver</th><th>Route</th></tr></thead>
+      <thead><tr><th>Bus ID</th><th>Bus Name</th><th>Driver ID</th><th>Route</th><th>Position</th><th>Actions</th></tr></thead>
       <tbody id="busTableBody"></tbody>
     </table>
   </div>
 
+  <!-- DRIVERS -->
   <div id="drivers" class="section" style="display:none;">
     <h2>Drivers</h2>
-    <div class="card" style="max-width:800px;">
+    <div class="card">
       <form id="driverForm" style="margin-bottom:12px;">
-        <div class="input-row">
+        <div class="flex-row">
           <input id="driverName" placeholder="Driver Name" required>
           <input id="driverPhone" placeholder="Phone">
         </div>
-        <div class="input-row">
+        <div class="flex-row" style="margin-top:8px">
           <input id="driverLicense" placeholder="License No">
-          <div style="flex:1"></div>
+          <input id="driverIdManual" placeholder="Driver ID (optional)">
         </div>
-        <button class="small-btn" type="submit">Add Driver</button>
+        <div style="margin-top:8px">
+          <button class="small-btn" type="submit">Add Driver</button>
+        </div>
       </form>
-      <h3 style="margin-top:12px;">Existing Drivers</h3>
-      <table id="driverTable" style="margin-top:8px;">
-        <thead><tr><th>Name</th><th>Phone</th><th>License</th></tr></thead>
+
+      <h3>Existing Drivers</h3>
+      <table id="driverTable">
+        <thead><tr><th>Driver ID</th><th>Name</th><th>Phone</th><th>License</th><th>Actions</th></tr></thead>
         <tbody id="driverTableBody"></tbody>
       </table>
     </div>
   </div>
 
-  <div id="mapSection" class="section" style="display:none;">
-    <h2>Live Tracking</h2>
-    <div id="map"></div>
-  </div>
+  <!-- MAP -->
+<div id="mapSection" class="section" style="display:none;">
+  <h2>Live Tracking (Admin)</h2>
+
+  <label for="adminBusSelect">Select Bus:</label>
+  <select id="adminBusSelect">
+    <option value="">All Buses</option>
+  </select>
+
+  <div id="map" style="width:100%; height:500px; margin-top:10px;"></div>
+  <p class="center" style="margin-top:10px">
+    Map reads latest positions from localStorage & updates every 3s.
+  </p>
+</div>
+
+
+<!-- CONTACTS -->
+<div id="contacts" class="section" style="display:none;">
+  <h2>User Contacts</h2>
+  <table id="contactsTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+          <th>Phone</th>
+        <th>Email</th>
+        <th>Subject</th>
+        <th>Message</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="contactsTableBody"></tbody>
+  </table>
+</div>
+
+
+  <!-- FEEDBACKS -->
+<div id="feedbacks" class="section" style="display:none;">
+  <h2>User Feedback</h2>
+  <table id="feedbackTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Message</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="feedbackTableBody"></tbody>
+  </table>
+</div>
+
+
 </div>
 
 <script>
-const API_BASE = 'http://localhost:3000/api';
 
-// Escape helper
-function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  const predefinedRoutes = {
+  route1: [[24.8607,67.0011],[24.8100,67.0200],[24.8130,67.0500],[24.8720,67.0750]],
+  route2: [[24.8720,67.0750],[24.8530,67.1200],[24.9100,67.1500],[24.8500,67.2000]],
+  route3: [[24.9400,67.0300],[24.9200,67.0600],[24.8100,67.0100],[24.8300,66.9800]],
+  route4: [[24.9400,67.1600],[24.8530,67.1200],[24.8130,67.0500],[24.8607,67.0011]],
+  route5: [[24.8500,67.0500],[24.8600,67.0700],[24.8720,67.0750],[24.8130,67.0500]],
+  route6: [[24.8130,67.0500],[24.8607,67.0011],[24.8300,66.9800],[24.8500,67.2000]],
+  route7: [[24.8530,67.1200],[24.9100,67.1500],[24.8720,67.0750],[24.9400,67.0300]],
+  route8: [[24.8607,67.0011],[24.8500,67.0500],[24.8600,67.0700],[24.9400,67.1600]],
+  route9: [[24.8130,67.0500],[24.8130,67.0500],[24.8720,67.0750],[24.8530,67.1200]],
+  route10: [[24.8300,66.9800],[24.8500,67.2000],[24.9100,67.1500],[24.8100,67.0100]]
+};
 
-// Toggle sidebar dropdown
-function toggleDropdown(id) {
-  const menus = document.querySelectorAll('.dropdown');
-  menus.forEach(m => { if (m.id !== id) m.style.display='none'; });
-  const menu = document.getElementById(id);
-  menu.style.display = (menu.style.display==='flex')?'none':'flex';
+
+/* -------------------------
+LocalStorage helpers
+------------------------- */
+function readLS(key,fallback){ try{ return JSON.parse(localStorage.getItem(key))||fallback; }catch(e){ return fallback; } }
+function writeLS(key,val){ localStorage.setItem(key,JSON.stringify(val)); }
+function uid(prefix='id'){ return prefix + '*' + Date.now() + '*' + Math.floor(Math.random()*900+100); }
+
+/* ensure keys exist */
+if(!localStorage.getItem('buses')) writeLS('buses',[]);
+if(!localStorage.getItem('drivers')) writeLS('drivers',[]);
+if(!localStorage.getItem('contactMessages')) writeLS('contactMessages',[]);
+if(!localStorage.getItem('feedback')) writeLS('feedback',[]);
+if(!localStorage.getItem('positions')) writeLS('positions',{});
+
+/* -------------------------
+UI helpers
+------------------------- */
+function toggleDropdown(id){
+document.querySelectorAll('.dropdown').forEach(m=>{ if(m.id!==id) m.style.display='none'; });
+const el = document.getElementById(id);
+el.style.display = (el.style.display==='flex' || el.style.display==='block') ? 'none' : 'flex';
+}
+function showSection(id){
+    document.querySelectorAll('.section').forEach(s=>s.style.display='none');
+    const el=document.getElementById(id);
+    if(el) el.style.display='block';
+
+    if(id==='mapSection') {
+        setTimeout(()=>{ 
+            if(window.map) {
+                map.invalidateSize();
+                const selectedBusId = document.getElementById('adminBusSelect').value;
+                refreshMapMarkers(selectedBusId);
+            }
+        }, 200);
+    }
 }
 
-// Show section
-function showSection(id) {
-  document.querySelectorAll('.section').forEach(sec => sec.style.display='none');
-  const el = document.getElementById(id);
-  if(el) el.style.display='block';
-  if(id==='mapSection' && typeof map!=='undefined'){ setTimeout(()=>map.invalidateSize(),200); }
+/* -------------------------
+Drivers
+------------------------- */
+/* -------------------------
+Drivers
+------------------------- */
+document.getElementById('driverForm').addEventListener('submit', e => {
+    e.preventDefault();
+
+    const name = document.getElementById('driverName').value.trim();
+    const phone = document.getElementById('driverPhone').value.trim();
+    const license = document.getElementById('driverLicense').value.trim();
+    const driverId = document.getElementById('driverIdManual').value.trim();
+
+    // Validations
+    if(!name || !/^[a-zA-Z\s]+$/.test(name)) {
+        alert("Driver name is required and must contain letters only.");
+        return;
+    }
+
+    if(!driverId || !/^\d+$/.test(driverId)) {
+        alert("Driver ID is required and must contain digits only.");
+        return;
+    }
+
+   if (!license || license.length !== 8) {
+    alert("License number must be exactly 8 characters.");
+    return;
 }
 
-// Clear bus form
+
+    if(!phone || !/^\d{11}$/.test(phone)) {
+        alert("Phone number is required and must contain 11 digits only.");
+        return;
+    }
+
+    // Read existing drivers
+    const drivers = readLS('drivers', []);
+    
+    // Prevent duplicate Driver ID
+    if(drivers.some(d => d.id === driverId)) {
+        alert("Driver ID already exists!");
+        return;
+    }
+
+    // Add new driver
+    const newDriver = { 
+        id: driverId, 
+        name, 
+        phone, 
+        license, 
+        createdAt: new Date().toISOString() 
+    };
+
+    drivers.push(newDriver);
+    writeLS('drivers', drivers);
+
+    // Reset form and reload table
+    document.getElementById('driverForm').reset();
+    loadDrivers();
+    alert("Driver added successfully!");
+});
+
+/* -------------------------
+Load Drivers in table
+------------------------- */
+function loadDrivers(){
+    const tbody = document.getElementById('driverTableBody');
+    tbody.innerHTML = '';
+    const drivers = readLS('drivers', []);
+    
+    drivers.forEach(d => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${escapeHtml(d.id)}</td>
+            <td>${escapeHtml(d.name)}</td>
+            <td>${escapeHtml(d.phone)}</td>
+            <td>${escapeHtml(d.license)}</td>
+            <td>
+                <button class="small-btn small danger" onclick="deleteDriver('${d.id}')">Delete</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+/* -------------------------
+Delete Driver
+------------------------- */
+function deleteDriver(id){
+    if(!confirm("Are you sure you want to delete this driver?")) return;
+
+    let drivers = readLS('drivers', []);
+    drivers = drivers.filter(d => d.id !== id);
+    writeLS('drivers', drivers);
+
+    // Also remove driverId from buses
+    let buses = readLS('buses', []);
+    buses = buses.map(b => b.driverId === id ? {...b, driverId: ''} : b);
+    writeLS('buses', buses);
+
+    loadDrivers();
+    loadBuses(); // update bus table to reflect deleted driver
+}
+
+
+/* -------------------------
+Buses
+------------------------- */
 function clearBusForm(){ document.getElementById('busForm').reset(); }
+/* -------------------------
+Admin: Add Bus
+------------------------- */
+document.getElementById('busForm').addEventListener('submit', e=>{
+e.preventDefault();
 
-// Initialize Leaflet map
-var map = L.map('map').setView([31.5204,74.3587],13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
-var busIcon = L.icon({ iconUrl:'https://cdn-icons-png.flaticon.com/512/3097/3097144.png', iconSize:[40,40], iconAnchor:[20,40] });
+const name = document.getElementById('busName').value.trim();
+const driverId = document.getElementById('driverIdForBus').value.trim();
+const selectedRouteKey = document.getElementById('routeSelect').value;
+    const route = predefinedRoutes[selectedRouteKey];
+    // ---- DRIVER ID VALIDATION ----
+const drivers = JSON.parse(localStorage.getItem('drivers')) || [];
+const driverExists = drivers.some(d => d.id == driverId);
 
-// --- DOM Ready
-document.addEventListener('DOMContentLoaded', async () => {
+if (!driverExists) {
+    alert("Driver does not exist! Please enter a valid Driver ID.");
+    return;
+}
 
-  // Load drivers
-  async function loadDrivers() {
-    try {
-      const res = await fetch(API_BASE+'/drivers');
-      const drivers = await res.json();
-      const tbody = document.getElementById('driverTableBody');
-      const select = document.getElementById('driverSelect');
-      tbody.innerHTML=''; select.innerHTML='<option value="">-- Assign Driver --</option>';
-      drivers.forEach(d=>{
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${escapeHtml(d.Name)}</td><td>${escapeHtml(d.Phone||'')}</td><td>${escapeHtml(d.LicenseNo||'')}</td>`;
-        tbody.appendChild(tr);
-        const opt=document.createElement('option'); opt.value=d.DriverId; opt.textContent=d.Name; select.appendChild(opt);
-      });
-    } catch(e){ console.error('loadDrivers',e); }
-  }
+const latVal = document.getElementById('initialLat').value.trim();
+const lngVal = document.getElementById('initialLng').value.trim();
 
-  // Load buses
-  async function loadBuses() {
-    try {
-      const res = await fetch(API_BASE+'/buses');
-      const buses = await res.json();
-      const tbody = document.getElementById('busTableBody'); tbody.innerHTML='';
-      buses.forEach(b=>{
-        const tr=document.createElement('tr');
-        tr.innerHTML = `<td>${escapeHtml(b.Name)}</td><td>${escapeHtml(b.DriverId||'Unassigned')}</td><td>${escapeHtml(b.Route||'')}</td>`;
+if(!name || !driverId || !route){ alert("All fields required"); return; }
 
-        tbody.appendChild(tr);
-      });
-    } catch(e){ console.error('loadBuses',e); }
-  }
+const id = uid('bus');
+const buses = readLS('buses', []);
 
-  await loadDrivers();
-  await loadBuses();
+const initialLat = latVal ? parseFloat(latVal) : route[0][0];
+    const initialLng = lngVal ? parseFloat(lngVal) : route[0][1];
+// Save initial coordinates inside bus object
+ const routeName = document.getElementById('routeSelect').selectedOptions[0].text; // human-readable
+    const newBus = { 
+        id, 
+        name, 
+        driverId, 
+        route,       // internal array
+        routeName,   // display in table
+        createdAt: new Date().toISOString()
+    };
 
-  // Driver form submit
-  document.getElementById('driverForm').addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const name=document.getElementById('driverName').value.trim();
-    const phone=document.getElementById('driverPhone').value.trim();
-    const licenseNo=document.getElementById('driverLicense').value.trim();
-    if(!name){ alert('Driver name required'); return; }
-    try {
-      await fetch(API_BASE+'/drivers', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,phone,licenseNo})});
-      document.getElementById('driverForm').reset();
-      await loadDrivers();
-      alert('Driver added');
-    } catch(e){ console.error(e); alert('Failed to add driver'); }
-  });
+if(latVal && lngVal){
+newBus.initialLat = parseFloat(latVal);
+newBus.initialLng = parseFloat(lngVal);
+const positions = readLS('positions', {});
+positions[id] = { lat: newBus.initialLat, lng: newBus.initialLng, updatedAt: new Date().toISOString() };
+writeLS('positions', positions);
+}
 
-  // Bus form submit
-  document.getElementById('busForm').addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const name=document.getElementById('busName').value.trim();
-    const route=document.getElementById('route').value.trim();
-    const driverId = document.getElementById('driverId').value.trim() || null;
+buses.push(newBus);
+writeLS('buses', buses);
 
-await fetch(API_BASE+'/buses', {
-  method:'POST',
-  headers:{'Content-Type':'application/json'},
-  body: JSON.stringify({ name, route, driverId })
+document.getElementById('busForm').reset();
+loadBuses();
+refreshMapMarkers(); // show marker immediately
+alert("Bus added successfully!");
+showSection('viewBus');
 });
 
-    try {
-      await fetch(API_BASE+'/buses', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,route,driverId:driverId||null,latitude,longitude})});
-      document.getElementById('busForm').reset();
-      await loadBuses();
-      alert('Bus added');
-      showSection('viewBus');
-    } catch(e){ console.error(e); alert('Failed to add bus'); }
-  });
 
+/* -------------------------
+View Buses (Admin)
+------------------------- */
+function loadBuses(){
+  const tbody = document.getElementById('busTableBody');
+  tbody.innerHTML = '';
+  const buses = readLS('buses', []);
+  const positions = readLS('positions', {});
+  
+  buses.forEach(b => {
+    const pos = positions[b.id];
+    const posText = pos ? `${pos.lat.toFixed(5)}, ${pos.lng.toFixed(5)}` : '—';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+  <td>${escapeHtml(b.id)}</td>
+  <td>${escapeHtml(b.name)}</td>
+  <td>${escapeHtml(b.driverId)}</td>
+  <td>${escapeHtml(b.routeName)}</td>  <!-- display human-readable route -->
+  <td>${escapeHtml(posText)}</td>
+  <td><button class="small-btn small danger" onclick="deleteBus('${b.id}')">Delete</button></td>
+`;
+
+    tbody.appendChild(tr);
+  });
+}
+
+/* -------------------------
+Delete Bus
+------------------------- */
+function deleteBus(id){
+  if(!confirm('Delete this bus?')) return;
+  let buses = readLS('buses', []);
+  buses = buses.filter(b => b.id !== id);
+  writeLS('buses', buses);
+
+  const positions = readLS('positions', {});
+  if(positions[id]) { delete positions[id]; writeLS('positions', positions); }
+
+  loadBuses();
+  refreshMapMarkers();
+  updateTrackingDropdown(); // update dropdown after deletion
+}
+function loadAdminBusSelector() {
+    const select = document.getElementById('adminBusSelect');
+    select.innerHTML = '<option value="">All Buses</option>'; // reset
+
+    const buses = readLS('buses', []);
+    buses.forEach(bus => {
+        const option = document.createElement('option');
+        option.value = bus.id;
+        option.textContent = bus.name;
+        select.appendChild(option);
+    });
+}
+
+
+
+/* -------------------------
+Contacts & Feedback (Admin Table Display)
+------------------------- */
+function loadContacts() {
+  const tbody = document.getElementById('contactsTableBody');
+  tbody.innerHTML = '';
+  
+  const contacts = readLS('contactMessages', []); // match the saved key
+  
+  contacts.slice().reverse().forEach(contact => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${escapeHtml(contact.id)}</td>
+      <td>${escapeHtml(contact.name)}</td>
+      <td>${escapeHtml(contact.email)}</td>
+      <td>${escapeHtml(contact.phone || '')}</td>
+      <td>${escapeHtml(contact.subject || '')}</td>
+      <td style="max-width:260px;white-space:pre-wrap">${escapeHtml(contact.message)}</td>
+      <td>${escapeHtml(contact.date)}</td>
+      <td>
+        <button class="small-btn small danger" onclick="deleteContact('${contact.id}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function deleteContact(id) {
+  if (!confirm('Delete this contact message?')) return;
+  
+  let contacts = readLS('contactMessages', []);
+  contacts = contacts.filter(c => c.id !== id);
+  writeLS('contactMessages', contacts);
+  
+  loadContacts();
+}
+
+
+function loadFeedback(){
+  const tbody = document.getElementById('feedbackTableBody');
+  tbody.innerHTML = '';
+  const feedbacks = readLS('feedback', []);
+  feedbacks.slice().reverse().forEach(f => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${escapeHtml(f.id)}</td>
+      <td>${escapeHtml(f.name)}</td>
+      <td>${escapeHtml(f.email)}</td>
+      <td style="max-width:260px;white-space:pre-wrap">${escapeHtml(f.message || '')}</td>
+      <td>${escapeHtml(f.date)}</td>
+      <td><button class="small-btn small danger" onclick="deleteFeedback('${f.id}')">Delete</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function deleteFeedback(id){
+if(!confirm('Delete this feedback?')) return;
+let feedback = readLS('feedback',[]);
+feedback = feedback.filter(f=>f.id!==id);
+writeLS('feedback', feedback);
+loadFeedback();
+}
+
+/* -------------------------
+Feedback & Contact Submission (from User Forms)
+------------------------- */
+function submitContact(data){
+  const contacts = readLS('contactMessages', []);
+  contacts.push({
+    ...data,           // name, email, phone, subject, message
+    id: uid('ct'),
+    date: new Date().toLocaleString()
+  });
+  writeLS('contactMessages', contacts);
+  alert('Contact message sent!');
+}
+
+
+function submitFeedback(data){
+  const feedbacks = readLS('feedback', []);
+  feedbacks.push({
+    ...data,           // includes name, email, message, and optional rating
+    id: uid('fb'),
+    date: new Date().toLocaleString()
+  });
+  writeLS('feedback', feedbacks);
+  alert('Feedback submitted!');
+}
+//-----------------------MAP---------------------------
+
+let map, markerLayer = {};
+
+// Initialize map
+function initMap(){
+    if(map) return;
+    map = L.map('map').setView([24.8607, 67.0011], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+}
+
+// Random status generator
+function getRandomStatus() {
+    const statuses = ['On Time', 'Delayed', 'Ahead of Schedule'];
+    return statuses[Math.floor(Math.random()*statuses.length)];
+}
+
+// Refresh markers on map
+function refreshMapMarkers(selectedBusId='') {
+    if(!map) return;
+
+    // Remove old markers
+    Object.values(markerLayer).forEach(m => map.removeLayer(m));
+    markerLayer = {};
+
+    const buses = readLS('buses', []);
+    buses.forEach(bus => {
+        if(selectedBusId && bus.id !== selectedBusId) return;
+        const lat = parseFloat(bus.initialLat || 24.8607);
+        const lng = parseFloat(bus.initialLng || 67.0011);
+
+        const marker = L.marker([lat, lng], { title: bus.name }).addTo(map);
+        marker.bindPopup(`<b>${escapeHtml(bus.name)}</b><br>Status: ${getRandomStatus()}`);
+        markerLayer[bus.id] = marker;
+    });
+
+    // Adjust map view
+    if(selectedBusId && markerLayer[selectedBusId]){
+        map.setView(markerLayer[selectedBusId].getLatLng(), 14);
+    } else {
+        map.setView([24.8607, 67.0011], 12);
+    }
+
+    setTimeout(()=>map.invalidateSize(), 200); // ensure tiles render
+}
+
+// Populate bus dropdown
+function loadAdminBusSelector(){
+    const select = document.getElementById('adminBusSelect');
+    select.innerHTML = '<option value="">All Buses</option>';
+    const buses = readLS('buses', []);
+    buses.forEach(bus => {
+        const opt = document.createElement('option');
+        opt.value = bus.id;
+        opt.textContent = bus.name;
+        select.appendChild(opt);
+    });
+
+    select.addEventListener('change', () => {
+        refreshMapMarkers(select.value);
+    });
+}
+
+// Show section helper
+function showSection(id){
+    document.querySelectorAll('.section').forEach(s => s.style.display='none');
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.style.display='block';
+
+    if(id === 'mapSection'){
+        setTimeout(() => {
+            if(!map) initMap();
+            map.invalidateSize();
+            refreshMapMarkers(document.getElementById('adminBusSelect').value);
+        }, 200);
+    }
+}
+
+// Auto-refresh map every 3 seconds
+function startMapAutoRefresh(){
+    setInterval(() => {
+        const selectedBusId = document.getElementById('adminBusSelect')?.value || '';
+        refreshMapMarkers(selectedBusId);
+    }, 3000);
+}
+
+// Initialize map on page load
+document.addEventListener('DOMContentLoaded', () => {
+    initMap();
+    loadAdminBusSelector();
+    refreshMapMarkers();
+    startMapAutoRefresh();
 });
+
+/* -------------------------
+ Utilities & Startup
+ ------------------------- */
+ function escapeHtml(s) {
+  return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+ document.addEventListener('DOMContentLoaded', () => {
+    // Load data
+    loadDrivers();
+    loadBuses();
+    loadContacts();
+    loadFeedback();
+});
+
+  
+
 </script>
+
 </body>
 </html>
